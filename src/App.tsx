@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import Dashboard from './components/Dashboard';
-import ConnectionStatus from './components/ConnectionStatus';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Componente interno que usa o contexto
@@ -62,7 +61,6 @@ const AppContent: React.FC = () => {
 
   return (
     <>
-      <ConnectionStatus />
       {isAuthenticated ? (
         <Dashboard />
       ) : (

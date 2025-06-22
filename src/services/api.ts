@@ -153,12 +153,8 @@ class ApiService {
 
   // Verificar se o token é válido - usando o endpoint específico do auth-service
   async validateToken(): Promise<{ valid: boolean; user?: User }> {
-    try {
-      const response = await this.request<{ valid: boolean; user?: User }>('/auth-service/auth/validate');
-      return response;
-    } catch {
-      return { valid: false };
-    }
+    // Retornar a promise diretamente. O erro será capturado no AuthContext.
+    return this.request<{ valid: boolean; user?: User }>('/auth-service/auth/validate');
   }
 
   // Recuperar dados do usuário - usando o endpoint específico do user-service
@@ -186,20 +182,6 @@ class ApiService {
         connected: false, 
         message: error instanceof Error ? error.message : 'Erro de conexão' 
       };
-    }
-  }
-
-  // Função para verificar saúde da API
-  async healthCheck(): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/health`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
     }
   }
 }
