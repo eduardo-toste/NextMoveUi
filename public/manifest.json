@@ -1,0 +1,48 @@
+{
+  "name": "NextMove - Plataforma de Gestão Imobiliária",
+  "short_name": "NextMove",
+  "description": "Plataforma completa de gestão imobiliária",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/Logo NextMove.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Logo NextMove.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/Logo NextMove.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Login",
+      "short_name": "Login",
+      "description": "Acessar o sistema",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/Logo NextMove.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+} 
