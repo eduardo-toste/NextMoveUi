@@ -46,23 +46,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Verificar se o usuário está autenticado ao carregar a aplicação
   useEffect(() => {
-    const checkAuthStatus = async () => {
+    const checkAuthStatus = () => {
       try {
-        // Verificar se existe um token
-        if (authUtils.isAuthenticated()) {
-          // Validar o token com o backend
-          const validation = await apiService.validateToken();
-          
-          if (validation.valid && validation.user) {
-            setUser(validation.user);
-          } else {
-            // Token inválido, remover do localStorage
-            authUtils.removeToken();
-          }
+        const token = authUtils.getToken();
+        
+        if (token) {
+          // Se um token existir, decodificá-lo para obter os dados do usuário.
+          // Isso assume que se um token existe, ele é válido.
+          // Esta é uma abordagem mais simples que não valida o token com o backend.
+          const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+          const user: User = {
+            id: tokenPayload.id || 'unknown',
+            username: tokenPayload.sub || 'unknown',
+            name: tokenPayload.name || 'Usuário',
+          };
+          setUser(user);
         }
       } catch (error) {
-        console.error('Erro ao verificar autenticação:', error);
+        // Se o token estiver corrompido ou for inválido, ele falhará ao decodificar.
+        console.error('Falha ao processar token local:', error);
         authUtils.removeToken();
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
