@@ -3,6 +3,7 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import Dashboard from './components/Dashboard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import TransactionView from './components/TransactionView';
 
 // Componente interno que usa o contexto
 const AppContent: React.FC = () => {
@@ -87,6 +88,12 @@ const AppContent: React.FC = () => {
 
 // Componente principal que envolve tudo com o AuthProvider
 function App() {
+  // Roteamento manual para detalhes da transação
+  const pathname = window.location.pathname;
+  if (pathname.startsWith('/transacao/')) {
+    return <TransactionView />;
+  }
+
   return (
     <AuthProvider>
       <AppContent />

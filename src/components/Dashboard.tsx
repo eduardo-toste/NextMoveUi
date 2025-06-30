@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import type { TransactionResponseDTO } from '../services/api';
 import { apiService } from '../services/api';
+import TransactionView from './TransactionView';
 
 interface Metric {
   icon: string;
@@ -28,6 +29,8 @@ const Dashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [financialSummary, setFinancialSummary] = useState<FinancialSummaryItem[]>([]);
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<TransactionResponseDTO | null>(null);
 
   useEffect(() => {
     async function fetchTransactions() {
@@ -91,9 +94,10 @@ const Dashboard: React.FC = () => {
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 5)
           .map(t => ({
+            id: t.id,
             icon: t.type === 'INCOME' ? '💰' : '📋',
-            message: t.description,
-            time: new Date(t.createdAt).toLocaleString('pt-BR'),
+            message: (t as any).title || t.description,
+            time: new Date(t.createdAt).toLocaleDateString('pt-BR', { dateStyle: 'short' }),
             status: t.status
           }));
         setRecentActivities(activities);
@@ -174,11 +178,31 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleTransactionClick = (id: string) => {
+    const tx = transactions.find(t => t.id === id);
+    if (tx) {
+      setSelectedTransaction(tx);
+      setModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedTransaction(null);
+  };
+
+  const handleViewAll = () => {
+    window.location.href = '/transacoes';
+  };
+
   if (loading) return <div style={{ padding: 32, textAlign: 'center' }}>Carregando...</div>;
   if (error) return <div style={{ padding: 32, color: 'red', textAlign: 'center' }}>{error}</div>;
 
   return (
     <div className="dashboard-container">
+      {modalOpen && selectedTransaction && (
+        <TransactionView transaction={selectedTransaction} onClose={handleCloseModal} />
+      )}
       <div className="dashboard-card">
         {/* Header */}
         <div className="dashboard-header">
@@ -221,15 +245,20 @@ const Dashboard: React.FC = () => {
 
         {/* Seções Principais */}
         <div className="dashboard-sections">
-          {/* Seção Principal - Atividades Recentes */}
+          {/* Histórico de Transações */}
           <div className="section-main">
             <div className="section-header">
-              <h3>Atividades Recentes</h3>
-              <button className="view-all-btn">Ver todas</button>
+              <h3>Histórico de Transações</h3>
+              <button className="view-all-btn" onClick={handleViewAll}>Ver todas</button>
             </div>
             <div className="activities-list">
               {recentActivities.map((activity, index) => (
-                <div key={index} className="activity-item">
+                <button
+                  key={index}
+                  className="activity-item activity-interactive"
+                  onClick={() => handleTransactionClick(activity.id)}
+                  title="Ver detalhes da transação"
+                >
                   <span className="activity-icon">{activity.icon}</span>
                   <div className="activity-content">
                     <div className="activity-message">{activity.message}</div>
@@ -239,7 +268,7 @@ const Dashboard: React.FC = () => {
                     className="activity-status"
                     style={{ backgroundColor: getStatusColor(activity.status) }}
                   />
-                </div>
+                </button>
               ))}
             </div>
           </div>
