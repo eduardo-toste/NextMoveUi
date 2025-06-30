@@ -111,7 +111,7 @@ src/
 │   ├── LoginForm.tsx    # Formulário de login moderno
 │   ├── RegisterForm.tsx # Formulário de registro
 │   ├── Dashboard.tsx    # Dashboard principal
-│   └── ConnectionStatus.tsx # Indicador de conexão
+│   └── TransactionView.tsx # Modal de detalhes de transação
 ├── contexts/
 │   └── AuthContext.tsx  # Contexto de autenticação
 ├── services/
@@ -150,7 +150,7 @@ src/
 1. **LoginForm** - Formulário de login responsivo
 2. **RegisterForm** - Formulário de registro
 3. **Dashboard** - Interface principal com métricas
-4. **ConnectionStatus** - Indicador de conectividade
+4. **TransactionView** - Modal de detalhes de transação
 5. **AuthContext** - Gerenciamento de estado de autenticação
 
 ## 🔧 Scripts Disponíveis
@@ -189,11 +189,11 @@ A aplicação é totalmente responsiva e funciona perfeitamente em:
 - [x] Implementar tela de registro
 - [x] Criar dashboard responsivo
 - [x] Adicionar suporte a tema escuro
-- [x] Implementar indicador de conexão
+- [x] Implementar modal de detalhes de transação
+- [x] Integrar dashboard com backend real (sem mocks)
 - [ ] Adicionar sistema de busca
 - [ ] Criar perfil de usuário
 - [ ] Implementar notificações
-- [ ] Integrar com backend real
 - [ ] Adicionar testes automatizados
 
 ## 🤝 Contribuição
@@ -330,7 +330,9 @@ POST http://localhost:8082/auth-service/auth/login
 - ✅ Tratamento de erros
 - ✅ Design responsivo
 - ✅ Animações suaves
-- ✅ Status de conexão com Gateway
+- ✅ Dashboard dinâmico com dados reais do backend
+- ✅ Modal de detalhes de transação
+- ✅ Status visual do sistema
 - ✅ Logs de debug em desenvolvimento
 
 ## 🚀 Scripts Disponíveis
@@ -397,7 +399,7 @@ src/
 ├── components/              # Componentes React
 │   ├── LoginForm.tsx       # Formulário de login
 │   ├── Dashboard.tsx       # Dashboard principal
-│   └── ConnectionStatus.tsx # Status de conexão
+│   └── TransactionView.tsx # Modal de detalhes de transação
 ├── contexts/               # Contextos React
 │   └── AuthContext.tsx     # Contexto de autenticação
 ├── services/               # Serviços
@@ -543,54 +545,25 @@ Para que o frontend funcione corretamente, o backend deve ter CORS configurado p
 - ✅ Contraste adequado
 - ✅ Redução de movimento (prefers-reduced-motion)
 
-## 🐛 Debug
+## 🧹 Manutenção e Código Limpo
 
-### Indicador de Conexão
-- Clique no ponto colorido no canto superior direito
-- Em modo desenvolvimento, mostra informações detalhadas da conexão
-- Verde: Conectado | Vermelho: Desconectado | Amarelo: Verificando
+- O projeto não utiliza mais dados mockados: todas as informações do dashboard e histórico vêm do backend real.
+- Não há componentes ou arquivos não utilizados no código-fonte.
+- O código segue boas práticas de tipagem, organização e lint.
+- Recomenda-se rodar `npm run lint` antes de cada commit para garantir a qualidade.
 
-### Console
-- Logs detalhados de autenticação
-- Informações de erro da API
-- Status de conexão
+## 🎯 Próximos Passos
 
-## 📱 Testes Mobile
-
-### Dispositivos Testados
-- ✅ iPhone (Safari/Chrome)
-- ✅ Android (Chrome)
-- ✅ iPad (Safari)
-- ✅ Samsung Galaxy (Chrome)
-
-### Funcionalidades Mobile
-- ✅ Login/Registro
-- ✅ Dashboard responsivo
-- ✅ Navegação touch
-- ✅ PWA installation
-- ✅ Safe areas (notch)
-
-## 🔄 Atualizações
-
-### v1.0.0
-- ✅ Sistema de autenticação completo
-- ✅ Interface responsiva
-- ✅ Suporte PWA
-- ✅ Otimizações mobile
-- ✅ Modo escuro
-- ✅ Acessibilidade
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT.
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+- [x] Implementar tela de login moderna
+- [x] Implementar tela de registro
+- [x] Criar dashboard responsivo
+- [x] Adicionar suporte a tema escuro
+- [x] Implementar modal de detalhes de transação
+- [x] Integrar dashboard com backend real (sem mocks)
+- [ ] Adicionar sistema de busca
+- [ ] Criar perfil de usuário
+- [ ] Implementar notificações
+- [ ] Adicionar testes automatizados
 
 ---
 
