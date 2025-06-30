@@ -220,6 +220,20 @@ class ApiService {
       method: 'GET'
     });
   }
+
+  // Criar nova transação
+  async createTransaction(transactionData: {
+    title: string;
+    description: string;
+    amount: number;
+    dueDate: string;
+    type: 'INCOME' | 'EXPENSE';
+  }): Promise<TransactionResponseDTO> {
+    return this.request<TransactionResponseDTO>('/transaction-service/transaction', {
+      method: 'POST',
+      body: JSON.stringify(transactionData),
+    });
+  }
 }
 
 // Instância do serviço de API

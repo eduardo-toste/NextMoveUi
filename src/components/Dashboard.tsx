@@ -166,7 +166,7 @@ const Dashboard: React.FC = () => {
   };
 
   const quickActions = [
-    { icon: '➕', label: 'Criar Transação', action: () => console.log('Criar Transação') },
+    { icon: '➕', label: 'Criar Transação', action: () => window.location.href = '/criar-transacao' },
     { icon: '📋', label: 'Visualizar Transações', action: () => window.location.href = '/transacoes' },
     { icon: '📊', label: 'Relatório Mensal', action: () => console.log('Relatório Mensal') },
   ];
