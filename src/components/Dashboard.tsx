@@ -140,9 +140,8 @@ const Dashboard: React.FC = () => {
         // Atualiza resumo financeiro
         setFinancialSummary([
           { label: 'Receitas do Mês', value: monthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'profit' },
-          { label: 'Despesas Operacionais', value: prevMonthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'expense' },
-          { label: 'Comissões Pendentes', value: pendingCommissions.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'warning' },
-          { label: 'Lucro Líquido', value: netProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'profit', total: true },
+          { label: 'Despesas do Mês', value: prevMonthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'expense' },
+          { label: 'Total Líquido', value: (monthValue - prevMonthValue).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'profit', total: true },
         ]);
       } catch (e: any) {
         setError(e.message || 'Erro ao buscar transações');
@@ -290,7 +289,11 @@ const Dashboard: React.FC = () => {
             <div className="financial-summary">
               <h3>Resumo Financeiro</h3>
               {financialSummary.map((item, index) => (
-                <div key={index} className={`financial-item ${item.total ? 'total' : ''}`}>
+                <div
+                  key={index}
+                  className={`financial-item ${item.total ? 'total' : ''}`}
+                  style={index === financialSummary.length - 1 ? { borderBottom: 'none', marginBottom: 0, paddingBottom: 0 } : {}}
+                >
                   <span>{item.label}</span>
                   <strong className={item.type}>{item.value}</strong>
                 </div>
