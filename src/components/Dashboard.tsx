@@ -1,8 +1,153 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import type { TransactionResponseDTO } from '../services/api';
+import { apiService } from '../services/api';
+
+interface Metric {
+  icon: string;
+  value: string;
+  label: string;
+  trend: string;
+  trendType: string;
+  details: string[];
+}
+
+interface FinancialSummaryItem {
+  label: string;
+  value: string;
+  type: 'profit' | 'expense' | 'warning';
+  total?: boolean;
+}
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
+  const [transactions, setTransactions] = useState<TransactionResponseDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [metrics, setMetrics] = useState<Metric[]>([]);
+  const [financialSummary, setFinancialSummary] = useState<FinancialSummaryItem[]>([]);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchTransactions() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await apiService.getAllTransactions();
+        const txs = res.content || [];
+        setTransactions(txs);
+        // Cálculos
+        const now = new Date();
+        const thisMonth = now.getMonth();
+        const thisYear = now.getFullYear();
+        const prevMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+        const prevMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+
+        // Filtros
+        const completed = txs.filter(t => t.status === 'completed');
+        const income = completed.filter(t => t.type === 'INCOME');
+        const expense = completed.filter(t => t.type === 'EXPENSE');
+        // Valor total apenas das transações pendentes (status 'PENDING')
+        const pendingTxs = txs.filter(t => t.status && t.status.toUpperCase() === 'PENDING');
+        const totalValue = pendingTxs.reduce((sum, t) => sum + t.amount, 0);
+        // Quantidade de transações pendentes (status 'PENDING')
+        const totalPendingCount = pendingTxs.length;
+        const monthPendingCount = pendingTxs.filter(t => {
+          const d = new Date(t.createdAt);
+          return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+        }).length;
+        const prevMonthPendingCount = pendingTxs.filter(t => {
+          const d = new Date(t.createdAt);
+          return d.getMonth() === prevMonth && d.getFullYear() === prevMonthYear;
+        }).length;
+        // Taxa de sucesso das transações pendentes
+        const successRate = txs.length > 0 ? (totalPendingCount / txs.length) * 100 : 0;
+        // Valor do mês atual e anterior (apenas pendentes)
+        const monthValue = pendingTxs.filter(t => {
+          const d = new Date(t.createdAt);
+          return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+        }).reduce((sum, t) => sum + t.amount, 0);
+        const prevMonthValue = pendingTxs.filter(t => {
+          const d = new Date(t.createdAt);
+          return d.getMonth() === prevMonth && d.getFullYear() === prevMonthYear;
+        }).reduce((sum, t) => sum + t.amount, 0);
+        // Quantidade do mês atual e anterior
+        const monthTxCount = completed.filter(t => {
+          const d = new Date(t.createdAt);
+          return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+        }).length;
+        const prevMonthTxCount = completed.filter(t => {
+          const d = new Date(t.createdAt);
+          return d.getMonth() === prevMonth && d.getFullYear() === prevMonthYear;
+        }).length;
+        // Comissões pendentes (despesas pendentes)
+        const pendingCommissions = txs.filter(t => t.status === 'pending' && t.type === 'EXPENSE')
+          .reduce((sum, t) => sum + t.amount, 0);
+        // Lucro líquido do mês
+        const netProfit = monthValue - prevMonthValue;
+        // Atividades recentes (últimas 5)
+        const activities = txs
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 5)
+          .map(t => ({
+            icon: t.type === 'INCOME' ? '💰' : '📋',
+            message: t.description,
+            time: new Date(t.createdAt).toLocaleString('pt-BR'),
+            status: t.status
+          }));
+        setRecentActivities(activities);
+        // Atualiza métricas
+        setMetrics([
+          {
+            icon: '💰',
+            value: totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            label: 'Valor Total em Transações Pendentes',
+            trend: '',
+            trendType: 'warning',
+            details: [
+              `Este mês: ${monthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
+              `Mês anterior: ${prevMonthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+            ]
+          },
+          {
+            icon: '📊',
+            value: totalPendingCount.toString(),
+            label: 'Transações Pendentes',
+            trend: '',
+            trendType: 'warning',
+            details: [
+              `Este mês: ${monthPendingCount} transações`,
+              `Mês anterior: ${prevMonthPendingCount} transações`
+            ]
+          },
+          {
+            icon: '🎯',
+            value: `${successRate.toFixed(1)}%`,
+            label: 'Taxa de Sucesso (Pendentes)',
+            trend: '',
+            trendType: 'warning',
+            details: [
+              `Taxa de pendentes sobre o total: ${successRate.toFixed(1)}%`,
+              totalPendingCount === 0 ? 'Nenhuma pendente' : 'Há pendentes a resolver'
+            ]
+          }
+        ]);
+        // Atualiza resumo financeiro
+        setFinancialSummary([
+          { label: 'Receitas do Mês', value: monthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'profit' },
+          { label: 'Despesas Operacionais', value: prevMonthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'expense' },
+          { label: 'Comissões Pendentes', value: pendingCommissions.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'warning' },
+          { label: 'Lucro Líquido', value: netProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'profit', total: true },
+        ]);
+      } catch (e: any) {
+        setError(e.message || 'Erro ao buscar transações');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTransactions();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -12,80 +157,12 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Dados simulados para o dashboard
-  const metrics = [
-    {
-      icon: '💰',
-      value: 'R$ 2.847.500',
-      label: 'Valor Total em Transações',
-      trend: '+12.5%',
-      trendType: 'positive',
-      details: ['Este mês: R$ 245.300', 'Mês anterior: R$ 218.000']
-    },
-    {
-      icon: '📊',
-      value: '156',
-      label: 'Transações Realizadas',
-      trend: '+8.2%',
-      trendType: 'positive',
-      details: ['Este mês: 23 transações', 'Mês anterior: 21 transações']
-    },
-    {
-      icon: '🎯',
-      value: '94.2%',
-      label: 'Taxa de Sucesso',
-      trend: '+2.1%',
-      trendType: 'positive',
-      details: ['Meta: 90%', 'Performance: Excelente']
-    }
-  ];
-
-  const recentActivities = [
-    {
-      icon: '🏠',
-      message: 'Venda de apartamento no Centro - R$ 450.000',
-      time: '2 horas atrás',
-      status: 'completed'
-    },
-    {
-      icon: '📋',
-      message: 'Nova proposta recebida - Casa em condomínio',
-      time: '4 horas atrás',
-      status: 'pending'
-    },
-    {
-      icon: '✅',
-      message: 'Documentação aprovada - Terreno comercial',
-      time: '1 dia atrás',
-      status: 'completed'
-    },
-    {
-      icon: '📞',
-      message: 'Visita agendada - Apartamento 3 quartos',
-      time: '2 dias atrás',
-      status: 'scheduled'
-    },
-    {
-      icon: '💰',
-      message: 'Comissão recebida - R$ 12.500',
-      time: '3 dias atrás',
-      status: 'completed'
-    }
-  ];
-
   const quickActions = [
     { icon: '➕', label: 'Nova Transação', action: () => console.log('Nova transação') },
     { icon: '📋', label: 'Criar Proposta', action: () => console.log('Criar proposta') },
     { icon: '📊', label: 'Relatórios', action: () => console.log('Relatórios') },
     { icon: '👥', label: 'Clientes', action: () => console.log('Clientes') },
     { icon: '📅', label: 'Agenda', action: () => console.log('Agenda') }
-  ];
-
-  const financialSummary = [
-    { label: 'Receitas do Mês', value: 'R$ 45.800', type: 'profit' },
-    { label: 'Despesas Operacionais', value: 'R$ 12.300', type: 'expense' },
-    { label: 'Comissões Pendentes', value: 'R$ 8.900', type: 'warning' },
-    { label: 'Lucro Líquido', value: 'R$ 24.600', type: 'profit', total: true }
   ];
 
   const getStatusColor = (status: string) => {
@@ -96,6 +173,9 @@ const Dashboard: React.FC = () => {
       default: return '#6b7280';
     }
   };
+
+  if (loading) return <div style={{ padding: 32, textAlign: 'center' }}>Carregando...</div>;
+  if (error) return <div style={{ padding: 32, color: 'red', textAlign: 'center' }}>{error}</div>;
 
   return (
     <div className="dashboard-container">
@@ -131,7 +211,7 @@ const Dashboard: React.FC = () => {
               <div className="metric-value">{metric.value}</div>
               <div className="metric-label">{metric.label}</div>
               <div className="metric-details">
-                {metric.details.map((detail, idx) => (
+                {metric.details.map((detail: string, idx: number) => (
                   <div key={idx}>{detail}</div>
                 ))}
               </div>

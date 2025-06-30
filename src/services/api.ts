@@ -34,6 +34,16 @@ export interface ApiError {
   status?: number;
 }
 
+export interface TransactionResponseDTO {
+  id: string;
+  amount: number;
+  type: 'INCOME' | 'EXPENSE';
+  status: 'completed' | 'pending' | 'scheduled';
+  description: string;
+  createdAt: string;
+  // Adicione outros campos conforme necessário
+}
+
 // Classe para gerenciar as chamadas da API
 class ApiService {
   private baseURL: string;
@@ -183,6 +193,13 @@ class ApiService {
         message: error instanceof Error ? error.message : 'Erro de conexão' 
       };
     }
+  }
+
+  // Buscar todas as transações do usuário autenticado (endpoint correto)
+  async getAllTransactions(): Promise<{ content: TransactionResponseDTO[] }> {
+    return this.request<{ content: TransactionResponseDTO[] }>('/transaction-service/transaction', {
+      method: 'GET'
+    });
   }
 }
 
