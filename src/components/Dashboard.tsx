@@ -211,9 +211,6 @@ const Dashboard: React.FC = () => {
             </p>
           </div>
           <div className="dashboard-actions">
-            <button className="action-btn">
-              📊 Relatório Mensal
-            </button>
             <button className="logout-btn" onClick={handleLogout}>
               Sair
             </button>
