@@ -18,6 +18,7 @@ interface AuthContextType {
   login: (credentials: LoginRequest) => Promise<void>;
   register: (userData: RegisterRequest) => Promise<void>;
   logout: () => void;
+  forceLogout: () => void;
   clearError: () => void;
 }
 
@@ -126,14 +127,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      // Chamar logout no backend
-      await apiService.logout();
+      // Chamar logout no backend com timeout
+      const logoutPromise = apiService.logout();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout: Servidor não respondeu')), 5000)
+      );
+      
+      await Promise.race([logoutPromise, timeoutPromise]);
     } catch (error) {
       console.error('Erro ao fazer logout no backend:', error);
+      // Não re-throw o erro para não impedir a limpeza local
     } finally {
-      // Limpar dados locais independentemente do resultado do backend
+      // SEMPRE limpar dados locais, independentemente do resultado do backend
+      forceLogout();
+    }
+  };
+
+  // Função de logout forçado (sem chamada ao backend)
+  const forceLogout = () => {
+    try {
+      // Remover token do localStorage
       authUtils.removeToken();
+      
+      // Limpar estado do usuário
       setUser(null);
+      
+      // Limpar qualquer erro
+      setError(null);
+      
+      console.log('Logout realizado com sucesso - dados locais limpos');
+    } catch (error) {
+      console.error('Erro ao limpar dados locais:', error);
+      // Tentar limpar manualmente como fallback
+      try {
+        localStorage.removeItem('authToken');
+        setUser(null);
+      } catch (fallbackError) {
+        console.error('Erro no fallback de limpeza:', fallbackError);
+      }
+    } finally {
       setIsLoading(false);
     }
   };
@@ -175,6 +207,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    forceLogout,
     error,
     clearError,
   };

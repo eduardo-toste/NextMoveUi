@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import type { TransactionResponseDTO } from '../services/api';
 import { apiService } from '../services/api';
+import type { TransactionResponseDTO } from '../services/api';
 import TransactionView from './TransactionView';
 
 interface Metric {
@@ -21,7 +21,7 @@ interface FinancialSummaryItem {
 }
 
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, forceLogout } = useAuth();
   const [transactions, setTransactions] = useState<TransactionResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -154,9 +154,14 @@ const Dashboard: React.FC = () => {
 
   const handleLogout = async () => {
     try {
+      console.log('Iniciando logout...');
       await logout();
+      console.log('Logout concluído com sucesso');
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
+      // Se o logout normal falhar, forçar o logout local
+      console.log('Forçando logout local...');
+      forceLogout();
     }
   };
 

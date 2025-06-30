@@ -81,7 +81,16 @@ class ApiService {
     }
 
     try {
-      const response = await fetch(url, requestConfig);
+      // Criar AbortController para timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
+      
+      const response = await fetch(url, {
+        ...requestConfig,
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
       
       // Log para debug em desenvolvimento
       if (config.isDevelopment) {
@@ -132,6 +141,16 @@ class ApiService {
         if (config.isDevelopment) {
           console.error(`API Error: ${endpoint}`, error);
         }
+        
+        // Tratamento específico para erros de rede
+        if (error.name === 'AbortError') {
+          throw new Error('Timeout: Servidor não respondeu em tempo hábil');
+        } else if (error.message.includes('fetch')) {
+          throw new Error('Erro de conexão: Verifique sua conexão com a internet');
+        } else if (error.message.includes('Failed to fetch')) {
+          throw new Error('Servidor inacessível: Verifique se o backend está rodando');
+        }
+        
         throw new Error(error.message);
       }
       throw new Error('Erro de conexão com o servidor');
