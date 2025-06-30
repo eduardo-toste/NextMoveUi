@@ -244,10 +244,9 @@ const Dashboard: React.FC = () => {
           <div className="section-main">
             <div className="section-header">
               <h3>Histórico de Transações</h3>
-              <button className="view-all-btn" onClick={handleViewAll}>Ver todas</button>
             </div>
-            <div className="activities-list">
-              {recentActivities.map((activity, index) => (
+            <div className="activities-list" style={{ maxHeight: 340, overflowY: 'auto' }}>
+              {recentActivities.slice(0, 10).map((activity, index) => (
                 <button
                   key={index}
                   className="activity-item activity-interactive"
