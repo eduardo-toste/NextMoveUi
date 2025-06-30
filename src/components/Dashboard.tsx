@@ -162,11 +162,9 @@ const Dashboard: React.FC = () => {
   };
 
   const quickActions = [
-    { icon: '➕', label: 'Nova Transação', action: () => console.log('Nova transação') },
-    { icon: '📋', label: 'Criar Proposta', action: () => console.log('Criar proposta') },
-    { icon: '📊', label: 'Relatórios', action: () => console.log('Relatórios') },
-    { icon: '👥', label: 'Clientes', action: () => console.log('Clientes') },
-    { icon: '📅', label: 'Agenda', action: () => console.log('Agenda') }
+    { icon: '➕', label: 'Criar Transação', action: () => console.log('Criar Transação') },
+    { icon: '📋', label: 'Visualizar Transações', action: () => window.location.href = '/transacoes' },
+    { icon: '📊', label: 'Relatório Mensal', action: () => console.log('Relatório Mensal') },
   ];
 
   const getStatusColor = (status: string) => {
