@@ -53,7 +53,7 @@ const TransactionList: React.FC = () => {
 
     // Filtro por status
     if (filters.status) {
-      filtered = filtered.filter(t => t.status === filters.status);
+      filtered = filtered.filter(t => t.status && t.status.toLowerCase() === filters.status.toLowerCase());
     }
 
     // Filtro por busca (título ou descrição)
@@ -233,9 +233,9 @@ const TransactionList: React.FC = () => {
                 className="filter-select"
               >
                 <option value="">Todos</option>
-                <option value="completed">Concluída</option>
-                <option value="pending">Pendente</option>
-                <option value="scheduled">Agendada</option>
+                <option value="completed">CONCLUÍDA</option>
+                <option value="pending">PENDENTE</option>
+                <option value="cancelled">CANCELADA</option>
               </select>
             </div>
             <button 
@@ -316,9 +316,6 @@ const TransactionList: React.FC = () => {
                         {transaction.status && transaction.status.toLowerCase() === 'completed' && 'CONCLUÍDA'}
                         {transaction.status && transaction.status.toLowerCase() === 'pending' && 'PENDENTE'}
                         {transaction.status && transaction.status.toLowerCase() === 'cancelled' && 'CANCELADA'}
-                        {transaction.status && transaction.status.toLowerCase() === 'scheduled' && 'AGENDADA'}
-                        {transaction.status && transaction.status.toLowerCase() === 'failed' && 'FALHOU'}
-                        {['completed','pending','cancelled','scheduled','failed'].indexOf(transaction.status && transaction.status.toLowerCase()) === -1 && transaction.status}
                       </span>
                     </td>
                     <td className="transaction-date-cell">

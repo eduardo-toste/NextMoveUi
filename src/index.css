@@ -2621,5 +2621,78 @@ textarea:focus {
   }
 }
 
+/* Ajuste de alinhamento e largura na tabela de transações */
+.transactions-table th,
+.transactions-table td {
+  vertical-align: middle;
+  padding: 1rem 0.75rem;
+}
+
+.transactions-table th {
+  text-align: left;
+}
+
+.transaction-type-cell,
+.transaction-title-cell,
+.transaction-description-cell {
+  text-align: left;
+}
+
+.transaction-amount-cell {
+  text-align: right;
+  min-width: 110px;
+}
+
+.transaction-status-cell,
+.transaction-actions-cell,
+.transaction-date-cell {
+  text-align: center;
+}
+
+.transaction-title-cell {
+  min-width: 140px;
+  max-width: 220px;
+}
+
+.transaction-description-cell {
+  min-width: 160px;
+  max-width: 260px;
+}
+
+.transaction-type-cell {
+  min-width: 110px;
+  max-width: 140px;
+}
+
+.transaction-status-cell {
+  min-width: 120px;
+}
+
+.transaction-actions-cell {
+  min-width: 100px;
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+  .transaction-title-cell {
+    min-width: 100px;
+    max-width: 140px;
+  }
+  .transaction-description-cell {
+    min-width: 100px;
+    max-width: 160px;
+  }
+  .transaction-type-cell {
+    min-width: 80px;
+    max-width: 100px;
+  }
+  .transaction-status-cell {
+    min-width: 80px;
+  }
+  .transaction-amount-cell {
+    min-width: 80px;
+  }
+}
+
 
 
