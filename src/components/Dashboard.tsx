@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/api';
 import type { TransactionResponseDTO } from '../services/api';
 import TransactionView from './TransactionView';
+import jsPDF from 'jspdf';
 
 interface Metric {
   icon: string;
@@ -68,7 +69,7 @@ const Dashboard: React.FC = () => {
         const successRate = txs.length > 0 ? (totalPendingCount / txs.length) * 100 : 0;
 
         // Função utilitária para pegar mês/ano de uma transação (usando apenas dueDate)
-        const getMonthYear = (t: any) => {
+        const getMonthYear = (t: TransactionResponseDTO) => {
           if (!t.dueDate) return { month: -1, year: -1 };
           const [year, month] = t.dueDate.split('-');
           return { month: Number(month), year: Number(year) };
@@ -163,10 +164,80 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Função para gerar PDF do relatório mensal
+  const handleDownloadMonthlyReport = () => {
+    // Filtrar transações do mês atual
+    const now = new Date();
+    const thisMonth = now.getMonth() + 1;
+    const thisYear = now.getFullYear();
+    const getMonthYear = (t: TransactionResponseDTO) => {
+      if (!t.dueDate) return { month: -1, year: -1 };
+      const [year, month] = t.dueDate.split('-');
+      return { month: Number(month), year: Number(year) };
+    };
+    const monthTxs = transactions.filter((t: TransactionResponseDTO) =>
+      t.dueDate &&
+      getMonthYear(t).month === thisMonth &&
+      getMonthYear(t).year === thisYear
+    );
+    // Totais
+    const totalIncome = monthTxs.filter(t => t.type === 'INCOME').reduce((sum, t) => sum + t.amount, 0);
+    const totalExpense = monthTxs.filter(t => t.type === 'EXPENSE').reduce((sum, t) => sum + t.amount, 0);
+    const netBalance = totalIncome - totalExpense;
+    // Montar PDF personalizado
+    const doc = new jsPDF();
+    // Cabeçalho bonito
+    doc.setFillColor(102, 126, 234);
+    doc.rect(0, 0, 210, 28, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(18);
+    doc.text('Relatório Mensal de Transações', 14, 18);
+    doc.setFontSize(12);
+    doc.text(`Mês: ${String(thisMonth).padStart(2, '0')}/${thisYear}`, 14, 25);
+    doc.setTextColor(40,40,40);
+    doc.setFontSize(11);
+    doc.text(`Total de transações: ${monthTxs.length}`, 14, 35);
+    // Tabela
+    const headers = ['Tipo', 'Título', 'Descrição', 'Valor', 'Status', 'Vencimento'];
+    let y = 43;
+    doc.setFont(undefined, 'bold');
+    headers.forEach((h, i) => doc.text(String(h), 14 + i*32, y));
+    doc.setFont(undefined, 'normal');
+    y += 8;
+    monthTxs.forEach((t, idx) => {
+      const row = [
+        t.type === 'INCOME' ? 'Receita' : 'Despesa',
+        (t as any).title ? String((t as any).title).slice(0, 15) : (t.description || '').slice(0, 15),
+        (t.description || '').slice(0, 15),
+        t.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        t.status ? String(t.status) : '-',
+        t.dueDate && t.dueDate.includes('-') ? (() => { const [y, m, d] = t.dueDate.split('-'); return `${d}/${m}/${y}`; })() : '-'
+      ];
+      row.forEach((cell, i) => doc.text(String(cell), 14 + i*32, y));
+      y += 8;
+      if (y > 250 && idx < monthTxs.length - 1) { doc.addPage(); y = 20; }
+    });
+    // Totais e balança
+    y += 10;
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(12);
+    doc.text('Totais do Mês:', 14, y);
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(11);
+    y += 7;
+    doc.text(`Receitas: ${totalIncome.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`, 14, y);
+    y += 7;
+    doc.text(`Despesas: ${totalExpense.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`, 14, y);
+    y += 7;
+    doc.setFont(undefined, 'bold');
+    doc.text(`Saldo (Balança): ${netBalance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`, 14, y);
+    doc.save(`relatorio-mensal-${String(thisMonth).padStart(2, '0')}-${thisYear}.pdf`);
+  };
+
   const quickActions = [
     { icon: '➕', label: 'Criar Transação', action: () => window.location.href = '/criar-transacao' },
     { icon: '📋', label: 'Visualizar Transações', action: () => window.location.href = '/transacoes' },
-    { icon: '📊', label: 'Relatório Mensal', action: () => console.log('Relatório Mensal') },
+    { icon: '📊', label: 'Relatório Mensal', action: handleDownloadMonthlyReport },
   ];
 
   const getStatusColor = (status: string) => {
