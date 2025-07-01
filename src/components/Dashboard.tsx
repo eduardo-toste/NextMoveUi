@@ -66,29 +66,33 @@ const Dashboard: React.FC = () => {
         }).length;
         // Taxa de sucesso das transações pendentes
         const successRate = txs.length > 0 ? (totalPendingCount / txs.length) * 100 : 0;
-        // Valor do mês atual e anterior (apenas pendentes)
-        const monthValue = pendingTxs.filter(t => {
-          const d = new Date(t.createdAt);
-          return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-        }).reduce((sum, t) => sum + t.amount, 0);
-        const prevMonthValue = pendingTxs.filter(t => {
-          const d = new Date(t.createdAt);
-          return d.getMonth() === prevMonth && d.getFullYear() === prevMonthYear;
-        }).reduce((sum, t) => sum + t.amount, 0);
-        // Quantidade do mês atual e anterior
-        const monthTxCount = completed.filter(t => {
-          const d = new Date(t.createdAt);
-          return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-        }).length;
-        const prevMonthTxCount = completed.filter(t => {
-          const d = new Date(t.createdAt);
-          return d.getMonth() === prevMonth && d.getFullYear() === prevMonthYear;
-        }).length;
-        // Comissões pendentes (despesas pendentes)
-        const pendingCommissions = txs.filter(t => t.status === 'pending' && t.type === 'EXPENSE')
-          .reduce((sum, t) => sum + t.amount, 0);
+
+        // Função utilitária para pegar mês/ano de uma transação (usando apenas dueDate)
+        const getMonthYear = (t: any) => {
+          if (!t.dueDate) return { month: -1, year: -1 };
+          const d = new Date(t.dueDate);
+          return { month: d.getUTCMonth(), year: d.getUTCFullYear() };
+        };
+
+        // Valor do mês atual (apenas receitas)
+        const monthIncome = txs.filter(t =>
+          t.status === 'completed' &&
+          t.type === 'INCOME' &&
+          t.dueDate &&
+          getMonthYear(t).month === thisMonth &&
+          getMonthYear(t).year === thisYear
+        ).reduce((sum, t) => sum + t.amount, 0);
+
+        // Valor do mês atual (apenas despesas)
+        const monthExpense = txs.filter(t =>
+          t.status === 'completed' &&
+          t.type === 'EXPENSE' &&
+          t.dueDate &&
+          getMonthYear(t).month === thisMonth &&
+          getMonthYear(t).year === thisYear
+        ).reduce((sum, t) => sum + t.amount, 0);
         // Lucro líquido do mês
-        const netProfit = monthValue - prevMonthValue;
+        const netProfit = monthIncome - monthExpense;
         // Atividades recentes (últimas 5)
         const activities = txs
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -97,7 +101,11 @@ const Dashboard: React.FC = () => {
             id: t.id,
             icon: t.type === 'INCOME' ? '💰' : '📋',
             message: (t as any).title || t.description,
-            time: new Date(t.createdAt).toLocaleDateString('pt-BR', { dateStyle: 'short' }),
+            time: (() => {
+              // Formatar manualmente a data YYYY-MM-DD para DD/MM/YYYY
+              const [year, month, day] = String(t.createdAt).split('-');
+              return `${day}/${month}/${year}`;
+            })(),
             status: t.status
           }));
         setRecentActivities(activities);
@@ -139,9 +147,9 @@ const Dashboard: React.FC = () => {
         ]);
         // Atualiza resumo financeiro
         setFinancialSummary([
-          { label: 'Receitas do Mês', value: prevMonthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'profit' },
-          { label: 'Despesas do Mês', value: monthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'expense' },
-          { label: 'Total Líquido', value: (prevMonthValue - monthValue).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: (prevMonthValue - monthValue) >= 0 ? 'profit' : 'expense', total: true },
+          { label: 'Receitas do Mês', value: monthIncome.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'profit' },
+          { label: 'Despesas do Mês', value: monthExpense.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'expense' },
+          { label: 'Total Líquido', value: (monthIncome - monthExpense).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: (monthIncome - monthExpense) >= 0 ? 'profit' : 'expense', total: true },
         ]);
       } catch (e: any) {
         setError(e.message || 'Erro ao buscar transações');

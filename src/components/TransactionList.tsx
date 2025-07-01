@@ -195,9 +195,9 @@ const TransactionList: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', { 
-      dateStyle: 'short'
-    });
+    if (!dateString) return '-';
+    const [year, month, day] = String(dateString).split('-');
+    return `${day}/${month}/${year}`;
   };
 
   const formatAmount = (amount: number) => {

@@ -139,7 +139,11 @@ const TransactionView: React.FC<TransactionViewProps> = ({ transaction, onClose,
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <span style={{ fontWeight: 600, color: '#667eea', fontSize: '0.95rem' }}>Data de Vencimento</span>
               <span style={{ fontWeight: 500, fontSize: '0.98rem', marginTop: 2 }}>
-                {new Date(dueDate as string).toLocaleDateString('pt-BR', { dateStyle: 'short' })}
+                {(() => {
+                  // Formatar manualmente a data YYYY-MM-DD para DD/MM/YYYY
+                  const [year, month, day] = String(dueDate).split('-');
+                  return `${day}/${month}/${year}`;
+                })()}
               </span>
             </div>
           )}
