@@ -5,7 +5,7 @@ import { apiService } from '../services/api';
 interface CreateTransactionForm {
   title: string;
   description: string;
-  amount: number;
+  amount: string;
   dueDate: string;
   type: 'INCOME' | 'EXPENSE';
 }
@@ -15,7 +15,7 @@ const CreateTransaction: React.FC = () => {
   const [formData, setFormData] = useState<CreateTransactionForm>({
     title: '',
     description: '',
-    amount: 0,
+    amount: '',
     dueDate: '',
     type: 'EXPENSE'
   });
@@ -27,7 +27,7 @@ const CreateTransaction: React.FC = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'amount' ? parseFloat(value) || 0 : value
+      [name]: value
     }));
   };
 
@@ -41,7 +41,7 @@ const CreateTransaction: React.FC = () => {
       const transactionData = {
         title: formData.title,
         description: formData.description,
-        amount: formData.amount,
+        amount: parseFloat(formData.amount) || 0,
         dueDate: formData.dueDate,
         type: formData.type
       };
@@ -51,7 +51,7 @@ const CreateTransaction: React.FC = () => {
       setFormData({
         title: '',
         description: '',
-        amount: 0,
+        amount: '',
         dueDate: '',
         type: 'EXPENSE'
       });
