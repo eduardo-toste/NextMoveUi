@@ -360,95 +360,102 @@ const TransactionList: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredTransactions.map((transaction) => (
-                  <tr key={transaction.id} className="transaction-row">
-                    <td className="transaction-type-cell">
-                      <span className="transaction-type-icon">{getTypeIcon(transaction.type)}</span>
-                      <span className="transaction-type-text">
-                        {transaction.type === 'INCOME' ? 'Receita' : 'Despesa'}
-                      </span>
-                    </td>
-                    <td className="transaction-title-cell" title={(transaction as any).title || 'Sem título'}>
-                      {(transaction as any).title || 'Sem título'}
-                    </td>
-                    <td className="transaction-description-cell" title={transaction.description}>
-                      {transaction.description}
-                    </td>
-                    <td className="transaction-amount-cell">
-                      {formatAmount(transaction.amount)}
-                    </td>
-                    <td className="transaction-status-cell">
-                      <span 
-                        className="transaction-status-badge"
-                        style={{ 
-                          backgroundColor: getStatusBackgroundColor(transaction.status),
-                          color: getStatusColor(transaction.status),
-                          border: `1px solid ${getStatusBorderColor(transaction.status)}`,
-                          fontWeight: '600'
-                        }}
-                        title={`Status: ${transaction.status}`}
-                      >
-                        {transaction.status && transaction.status.toLowerCase() === 'completed' && 'Concluída'}
-                        {transaction.status && transaction.status.toLowerCase() === 'pending' && 'Pendente'}
-                        {transaction.status && transaction.status.toLowerCase() === 'cancelled' && 'Cancelada'}
-                        {['completed','pending','cancelled'].indexOf(transaction.status && transaction.status.toLowerCase()) === -1 && transaction.status}
-                      </span>
-                    </td>
-                    <td className="transaction-due-date-cell">
-                      <span style={{ color: 'var(--text-primary, #374151)', fontWeight: '500' }}>
-                        {transaction.dueDate ? formatDate(transaction.dueDate) : '-'}
-                      </span>
-                    </td>
-                    <td className="transaction-actions-cell">
-                      <div className="transaction-actions">
-                        <StatusDropdown
-                          status={transaction.status?.toLowerCase()}
-                          transaction={transaction}
-                          open={openStatusDropdownId === transaction.id}
-                          onOpen={() => setOpenStatusDropdownId(transaction.id)}
-                          onClose={() => setOpenStatusDropdownId(null)}
-                          onChange={optValue => handleStatusChange(transaction, optValue)}
-                        />
-                        <button
-                          className="action-btn edit-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(transaction);
+                {[...filteredTransactions]
+                  .sort((a, b) => {
+                    if (!a.dueDate && !b.dueDate) return 0;
+                    if (!a.dueDate) return 1;
+                    if (!b.dueDate) return -1;
+                    return b.dueDate.localeCompare(a.dueDate);
+                  })
+                  .map((transaction) => (
+                    <tr key={transaction.id} className="transaction-row">
+                      <td className="transaction-type-cell">
+                        <span className="transaction-type-icon">{getTypeIcon(transaction.type)}</span>
+                        <span className="transaction-type-text">
+                          {transaction.type === 'INCOME' ? 'Receita' : 'Despesa'}
+                        </span>
+                      </td>
+                      <td className="transaction-title-cell" title={(transaction as any).title || 'Sem título'}>
+                        {(transaction as any).title || 'Sem título'}
+                      </td>
+                      <td className="transaction-description-cell" title={transaction.description}>
+                        {transaction.description}
+                      </td>
+                      <td className="transaction-amount-cell">
+                        {formatAmount(transaction.amount)}
+                      </td>
+                      <td className="transaction-status-cell">
+                        <span 
+                          className="transaction-status-badge"
+                          style={{ 
+                            backgroundColor: getStatusBackgroundColor(transaction.status),
+                            color: getStatusColor(transaction.status),
+                            border: `1px solid ${getStatusBorderColor(transaction.status)}`,
+                            fontWeight: '600'
                           }}
-                          title="Editar"
+                          title={`Status: ${transaction.status}`}
                         >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button
-                          className="action-btn delete-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteClick(transaction);
-                          }}
-                          disabled={deletingId === transaction.id}
-                          title="Excluir"
-                        >
-                          {deletingId === transaction.id ? (
+                          {transaction.status && transaction.status.toLowerCase() === 'completed' && 'Concluída'}
+                          {transaction.status && transaction.status.toLowerCase() === 'pending' && 'Pendente'}
+                          {transaction.status && transaction.status.toLowerCase() === 'cancelled' && 'Cancelada'}
+                          {['completed','pending','cancelled'].indexOf(transaction.status && transaction.status.toLowerCase()) === -1 && transaction.status}
+                        </span>
+                      </td>
+                      <td className="transaction-due-date-cell">
+                        <span style={{ color: 'var(--text-primary, #374151)', fontWeight: '500' }}>
+                          {transaction.dueDate ? formatDate(transaction.dueDate) : '-'}
+                        </span>
+                      </td>
+                      <td className="transaction-actions-cell">
+                        <div className="transaction-actions">
+                          <StatusDropdown
+                            status={transaction.status?.toLowerCase()}
+                            transaction={transaction}
+                            open={openStatusDropdownId === transaction.id}
+                            onOpen={() => setOpenStatusDropdownId(transaction.id)}
+                            onClose={() => setOpenStatusDropdownId(null)}
+                            onChange={optValue => handleStatusChange(transaction, optValue)}
+                          />
+                          <button
+                            className="action-btn edit-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(transaction);
+                            }}
+                            title="Editar"
+                          >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                              <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
-                          ) : (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M3 6h18"/>
-                              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                              <line x1="10" y1="11" x2="10" y2="17"/>
-                              <line x1="14" y1="11" x2="14" y2="17"/>
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          </button>
+                          <button
+                            className="action-btn delete-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(transaction);
+                            }}
+                            disabled={deletingId === transaction.id}
+                            title="Excluir"
+                          >
+                            {deletingId === transaction.id ? (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                              </svg>
+                            ) : (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M3 6h18"/>
+                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                <line x1="10" y1="11" x2="10" y2="17"/>
+                                <line x1="14" y1="11" x2="14" y2="17"/>
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
