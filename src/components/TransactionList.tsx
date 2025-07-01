@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/api';
 import type { TransactionResponseDTO } from '../services/api';
 import TransactionView from './TransactionView';
-import EditTransactionModal from './EditTransactionModal';
+import { StatusDropdown } from './StatusDropdown';
 
 const TransactionList: React.FC = () => {
   const { user } = useAuth();
@@ -27,6 +27,9 @@ const TransactionList: React.FC = () => {
     search: ''
   });
 
+  const [openStatusDropdownId, setOpenStatusDropdownId] = useState<string | null>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     fetchTransactions();
   }, []);
@@ -34,6 +37,20 @@ const TransactionList: React.FC = () => {
   useEffect(() => {
     applyFilters();
   }, [transactions, filters]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setOpenStatusDropdownId(null);
+      }
+    }
+    if (openStatusDropdownId) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openStatusDropdownId]);
 
   const fetchTransactions = async () => {
     setLoading(true);
@@ -190,6 +207,15 @@ const TransactionList: React.FC = () => {
     });
   };
 
+  const handleStatusChange = async (transaction: TransactionResponseDTO, newStatus: string) => {
+    try {
+      await apiService.updateTransaction(transaction.id, { status: newStatus.toUpperCase() as any });
+      fetchTransactions();
+    } catch (e: any) {
+      alert('Erro ao atualizar status: ' + (e.message || 'Erro desconhecido'));
+    }
+  };
+
   if (loading) return (
     <div className="transaction-list-container">
       <div className="transaction-list-card">
@@ -209,18 +235,7 @@ const TransactionList: React.FC = () => {
   return (
     <div className="transaction-list-container">
       {modalOpen && selectedTransaction && (
-        <TransactionView transaction={selectedTransaction} onClose={handleCloseModal} onEdit={handleEdit} />
-      )}
-      {editModalOpen && transactionToEdit && (
-        <EditTransactionModal
-          transaction={transactionToEdit}
-          onClose={handleCloseEditModal}
-          onSave={() => {
-            setEditModalOpen(false);
-            setTransactionToEdit(null);
-            fetchTransactions();
-          }}
-        />
+        <TransactionView transaction={selectedTransaction} onClose={handleCloseModal} onEdit={handleEdit} onStatusChange={handleStatusChange} />
       )}
       {deleteModalOpen && transactionToDelete && (
         <div className="modal-overlay">
@@ -386,6 +401,14 @@ const TransactionList: React.FC = () => {
                     </td>
                     <td className="transaction-actions-cell">
                       <div className="transaction-actions">
+                        <StatusDropdown
+                          status={transaction.status?.toLowerCase()}
+                          transaction={transaction}
+                          open={openStatusDropdownId === transaction.id}
+                          onOpen={() => setOpenStatusDropdownId(transaction.id)}
+                          onClose={() => setOpenStatusDropdownId(null)}
+                          onChange={optValue => handleStatusChange(transaction, optValue)}
+                        />
                         <button
                           className="action-btn edit-btn"
                           onClick={(e) => {

@@ -263,10 +263,10 @@ class ApiService {
     return;
   }
 
-  // Atualizar transação existente
+  // Atualizar transação existente (agora usando PATCH)
   async updateTransaction(transactionId: string, transactionData: Partial<TransactionResponseDTO>): Promise<TransactionResponseDTO> {
     return this.request<TransactionResponseDTO>(`/transaction-service/transaction/${transactionId}`, {
-      method: 'PUT',
+      method: 'PATCH',
       body: JSON.stringify(transactionData),
     });
   }

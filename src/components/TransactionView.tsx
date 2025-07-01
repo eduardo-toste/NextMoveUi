@@ -26,6 +26,7 @@ interface TransactionViewProps {
   transaction: TransactionResponseDTO;
   onClose: () => void;
   onEdit?: (transaction: TransactionResponseDTO) => void;
+  onStatusChange?: (transaction: TransactionResponseDTO, newStatus: string) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -34,7 +35,7 @@ const statusColors: Record<string, string> = {
   scheduled: '#3b82f6',
 };
 
-const TransactionView: React.FC<TransactionViewProps> = ({ transaction, onClose, onEdit }) => {
+const TransactionView: React.FC<TransactionViewProps> = ({ transaction, onClose, onEdit, onStatusChange }) => {
   const mainTitle = (transaction as any).title || transaction.description || 'Detalhes da Transação';
   const fields = Object.entries(transaction).filter(([key]) => !/id/i.test(key));
 
@@ -48,6 +49,14 @@ const TransactionView: React.FC<TransactionViewProps> = ({ transaction, onClose,
   // Campos extras (exclui principais)
   const extraFields = fields.filter(([key]) => !['title','description','amount','status','type','createdAt','dueDate'].includes(key));
 
+  const getNextStatus = (current: string) => {
+    if (current.toLowerCase() === 'pending') return { next: 'completed', label: 'Concluir', color: '#10b981', icon: '✔️' };
+    if (current.toLowerCase() === 'completed') return { next: 'pending', label: 'Marcar como Pendente', color: '#f59e0b', icon: '⏳' };
+    return null;
+  };
+
+  const statusAction = getNextStatus(transaction.status);
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -55,19 +64,31 @@ const TransactionView: React.FC<TransactionViewProps> = ({ transaction, onClose,
           <button className="modal-close-btn" onClick={onClose} aria-label="Fechar detalhes da transação">
             &times;
           </button>
-          {onEdit && (
-            <button
-              className="modal-edit-btn"
-              onClick={() => onEdit(transaction)}
-              aria-label="Editar transação"
-              style={{ marginLeft: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#2563eb', fontSize: 20 }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-            </button>
-          )}
+          <div style={{ display: 'flex', gap: 8 }}>
+            {onEdit && (
+              <button
+                className="modal-edit-btn"
+                onClick={() => onEdit(transaction)}
+                aria-label="Editar transação"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2563eb', fontSize: 20 }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+            )}
+            {statusAction && onStatusChange && (
+              <button
+                className="modal-status-btn"
+                style={{ background: statusAction.color, color: '#fff', border: 'none', borderRadius: 6, padding: '6px 14px', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                onClick={() => onStatusChange(transaction, statusAction.next as string)}
+                aria-label={statusAction.label}
+              >
+                <span>{statusAction.icon}</span> {statusAction.label}
+              </button>
+            )}
+          </div>
         </div>
         {/* Título grande */}
         <h2 className="dashboard-title" style={{ marginBottom: 8, fontSize: '1.6rem', textAlign: 'center', letterSpacing: 0.2, fontWeight: 700 }}>{mainTitle}</h2>
