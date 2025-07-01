@@ -155,7 +155,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Limpar qualquer erro
       setError(null);
       
-      console.log('Logout realizado com sucesso - dados locais limpos');
     } catch (error) {
       console.error('Erro ao limpar dados locais:', error);
       // Tentar limpar manualmente como fallback
@@ -185,10 +184,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Após registro bem-sucedido, não fazer login automático
       // Apenas mostrar sucesso e deixar o usuário fazer login manualmente
-      console.log('Usuário registrado com sucesso!');
-      
-      // Não definir usuário, deixar na tela de login
-      // O usuário precisará fazer login manualmente
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro ao registrar usuário';

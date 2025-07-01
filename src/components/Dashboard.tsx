@@ -40,7 +40,6 @@ const Dashboard: React.FC = () => {
         const res = await apiService.getAllTransactions();
         const txs = res.content || [];
         setTransactions(txs);
-        console.log('Transações carregadas:', txs.map(t => ({ id: t.id, dueDate: t.dueDate, status: t.status, type: t.type, amount: t.amount })));
         // Cálculos
         const now = new Date();
         const thisMonth = now.getMonth() + 1;
@@ -157,13 +156,9 @@ const Dashboard: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      console.log('Iniciando logout...');
       await logout();
-      console.log('Logout concluído com sucesso');
     } catch (error) {
-      console.error('Erro ao fazer logout:', error);
       // Se o logout normal falhar, forçar o logout local
-      console.log('Forçando logout local...');
       forceLogout();
     }
   };
@@ -195,8 +190,6 @@ const Dashboard: React.FC = () => {
     setModalOpen(false);
     setSelectedTransaction(null);
   };
-
-
 
   if (loading) return <div style={{ padding: 32, textAlign: 'center' }}>Carregando...</div>;
   if (error) return <div style={{ padding: 32, color: 'red', textAlign: 'center' }}>{error}</div>;
