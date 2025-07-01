@@ -4,6 +4,7 @@ import { apiService } from '../services/api';
 import type { TransactionResponseDTO } from '../services/api';
 import TransactionView from './TransactionView';
 import { StatusDropdown } from './StatusDropdown';
+import EditTransactionModal from './EditTransactionModal';
 
 const TransactionList: React.FC = () => {
   const { user } = useAuth();
@@ -236,6 +237,16 @@ const TransactionList: React.FC = () => {
     <div className="transaction-list-container">
       {modalOpen && selectedTransaction && (
         <TransactionView transaction={selectedTransaction} onClose={handleCloseModal} onEdit={handleEdit} onStatusChange={handleStatusChange} />
+      )}
+      {editModalOpen && transactionToEdit && (
+        <EditTransactionModal
+          transaction={transactionToEdit}
+          onClose={handleCloseEditModal}
+          onSave={() => {
+            fetchTransactions();
+            handleCloseEditModal();
+          }}
+        />
       )}
       {deleteModalOpen && transactionToDelete && (
         <div className="modal-overlay">
