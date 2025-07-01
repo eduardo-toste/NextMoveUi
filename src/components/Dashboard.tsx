@@ -110,8 +110,8 @@ const Dashboard: React.FC = () => {
             trend: '',
             trendType: 'warning',
             details: [
-              `Este mês: ${monthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
-              `Mês anterior: ${prevMonthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+              `Este mês: ${monthPendingCount} transações`,
+              `Mês anterior: ${prevMonthPendingCount} transações`
             ]
           },
           {
@@ -139,9 +139,9 @@ const Dashboard: React.FC = () => {
         ]);
         // Atualiza resumo financeiro
         setFinancialSummary([
-          { label: 'Receitas do Mês', value: monthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'profit' },
-          { label: 'Despesas do Mês', value: prevMonthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'expense' },
-          { label: 'Total Líquido', value: (monthValue - prevMonthValue).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'profit', total: true },
+          { label: 'Receitas do Mês', value: prevMonthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'profit' },
+          { label: 'Despesas do Mês', value: monthValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: 'expense' },
+          { label: 'Total Líquido', value: (prevMonthValue - monthValue).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), type: (prevMonthValue - monthValue) >= 0 ? 'profit' : 'expense', total: true },
         ]);
       } catch (e: any) {
         setError(e.message || 'Erro ao buscar transações');
