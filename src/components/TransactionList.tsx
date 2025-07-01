@@ -13,6 +13,9 @@ const TransactionList: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionResponseDTO | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<TransactionResponseDTO | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   // Filtros
   const [filters, setFilters] = useState({
@@ -103,21 +106,31 @@ const TransactionList: React.FC = () => {
     alert('Funcionalidade de edição será implementada em breve!');
   };
 
-  const handleDelete = async (transaction: TransactionResponseDTO) => {
-    if (!confirm(`Tem certeza que deseja excluir a transação "${(transaction as any).title || transaction.description}"?`)) {
-      return;
-    }
+  const handleDeleteClick = (transaction: TransactionResponseDTO) => {
+    setTransactionToDelete(transaction);
+    setDeleteModalOpen(true);
+  };
 
-    setDeletingId(transaction.id);
+  const handleConfirmDelete = async () => {
+    if (!transactionToDelete) return;
+    setDeletingId(transactionToDelete.id);
     try {
-      await apiService.deleteTransaction(transaction.id);
-      setTransactions(prev => prev.filter(t => t.id !== transaction.id));
-      alert('Transação excluída com sucesso!');
+      await apiService.deleteTransaction(transactionToDelete.id);
+      setTransactions(prev => prev.filter(t => t.id !== transactionToDelete.id));
+      setSuccessMessage('Transação excluída com sucesso!');
+      setTimeout(() => setSuccessMessage(null), 3000);
     } catch (e: any) {
       alert('Erro ao excluir transação: ' + (e.message || 'Erro desconhecido'));
     } finally {
+      setDeleteModalOpen(false);
+      setTransactionToDelete(null);
       setDeletingId(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false);
+    setTransactionToDelete(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -191,6 +204,31 @@ const TransactionList: React.FC = () => {
       {modalOpen && selectedTransaction && (
         <TransactionView transaction={selectedTransaction} onClose={handleCloseModal} />
       )}
+      {deleteModalOpen && transactionToDelete && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Confirmar Exclusão</h2>
+            <p>Tem certeza que deseja excluir a transação "{(transactionToDelete as any).title || transactionToDelete.description}"?</p>
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={handleCancelDelete}>Cancelar</button>
+              <button className="delete-btn" onClick={handleConfirmDelete} disabled={deletingId === transactionToDelete.id}>
+                {deletingId === transactionToDelete.id ? 'Excluindo...' : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 6, verticalAlign: 'middle'}}>
+                      <path d="M3 6h18"/>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                      <line x1="10" y1="11" x2="10" y2="17"/>
+                      <line x1="14" y1="11" x2="14" y2="17"/>
+                    </svg>
+                    Excluir
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="transaction-list-card">
         <div className="transaction-list-header">
           <h1>Transações</h1>
@@ -233,9 +271,9 @@ const TransactionList: React.FC = () => {
                 className="filter-select"
               >
                 <option value="">Todos</option>
-                <option value="completed">CONCLUÍDA</option>
-                <option value="pending">PENDENTE</option>
-                <option value="cancelled">CANCELADA</option>
+                <option value="completed">Concluída</option>
+                <option value="pending">Pendente</option>
+                <option value="cancelled">Cancelada</option>
               </select>
             </div>
             <button 
@@ -250,6 +288,10 @@ const TransactionList: React.FC = () => {
             <span>Mostrando {filteredTransactions.length} de {transactions.length} transações</span>
           </div>
         </div>
+
+        {successMessage && (
+          <div className="success-message" style={{marginBottom: 16}}>{successMessage}</div>
+        )}
 
         {filteredTransactions.length === 0 ? (
           <div className="empty-state">
@@ -280,7 +322,7 @@ const TransactionList: React.FC = () => {
                   <th>Descrição</th>
                   <th>Valor</th>
                   <th>Status</th>
-                  <th>Data</th>
+                  <th>Vencimento</th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -313,13 +355,16 @@ const TransactionList: React.FC = () => {
                         }}
                         title={`Status: ${transaction.status}`}
                       >
-                        {transaction.status && transaction.status.toLowerCase() === 'completed' && 'CONCLUÍDA'}
-                        {transaction.status && transaction.status.toLowerCase() === 'pending' && 'PENDENTE'}
-                        {transaction.status && transaction.status.toLowerCase() === 'cancelled' && 'CANCELADA'}
+                        {transaction.status && transaction.status.toLowerCase() === 'completed' && 'Concluída'}
+                        {transaction.status && transaction.status.toLowerCase() === 'pending' && 'Pendente'}
+                        {transaction.status && transaction.status.toLowerCase() === 'cancelled' && 'Cancelada'}
+                        {['completed','pending','cancelled'].indexOf(transaction.status && transaction.status.toLowerCase()) === -1 && transaction.status}
                       </span>
                     </td>
-                    <td className="transaction-date-cell">
-                      {formatDate(transaction.createdAt)}
+                    <td className="transaction-due-date-cell">
+                      <span style={{ color: 'var(--text-primary, #374151)', fontWeight: '500' }}>
+                        {transaction.dueDate ? formatDate(transaction.dueDate) : '-'}
+                      </span>
                     </td>
                     <td className="transaction-actions-cell">
                       <div className="transaction-actions">
@@ -340,7 +385,7 @@ const TransactionList: React.FC = () => {
                           className="action-btn delete-btn"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(transaction);
+                            handleDeleteClick(transaction);
                           }}
                           disabled={deletingId === transaction.id}
                           title="Excluir"

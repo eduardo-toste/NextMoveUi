@@ -33,6 +33,7 @@ html {
   --text-primary: #374151;
   --text-secondary: #6b7280;
   --text-muted: #9ca3af;
+  --danger-color: #ef4444;
 }
 
 body {
@@ -1518,14 +1519,25 @@ textarea:focus {
 }
 
 .success-message {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  padding: 1rem;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid #10b981;
   border-radius: 8px;
-  margin-bottom: 1rem;
+  padding: 0.75rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
   text-align: center;
-  font-weight: 600;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  margin: 0 auto 1rem auto;
+  max-width: 400px;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.07);
+  animation: fadeIn 0.3s;
+}
+@media (max-width: 480px) {
+  .success-message {
+    font-size: 0.95rem;
+    padding: 0.6rem 0.5rem;
+    max-width: 98vw;
+  }
 }
 
 .error-message {
@@ -2694,5 +2706,208 @@ textarea:focus {
   }
 }
 
+/* Modal de confirmação de exclusão - padrão visual do dashboard */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30, 41, 59, 0.55);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s;
+}
 
+.modal-content {
+  background: var(--card-bg, #fff);
+  color: var(--text-primary, #23272f);
+  border-radius: 18px;
+  box-shadow: var(--card-shadow, 0 4px 24px rgba(0,0,0,0.13));
+  border: 1px solid var(--border-color, #e5e7eb);
+  padding: 2rem 2.5rem;
+  max-width: 95vw;
+  min-width: 320px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  animation: slideUp 0.2s;
+}
 
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary, #23272f);
+}
+
+.modal-content p {
+  margin: 1.2rem 0 2rem 0;
+  color: var(--text-secondary, #6b7280);
+  font-size: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.cancel-btn {
+  background: var(--border-color, #e5e7eb);
+  color: var(--text-primary, #23272f);
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.cancel-btn:hover {
+  background: var(--text-muted, #d1d5db);
+  color: var(--text-primary, #23272f);
+}
+
+.delete-btn {
+  background: var(--danger-color, #ef4444);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: #dc2626;
+  color: #fff;
+}
+
+.delete-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 1.2rem 0.7rem;
+    min-width: 0;
+    max-width: 98vw;
+  }
+  .modal-content h2 {
+    font-size: 1.1rem;
+  }
+  .modal-content p {
+    font-size: 0.95rem;
+  }
+  .modal-actions {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    background: var(--card-bg, #23272f);
+    color: var(--text-primary, #f9fafb);
+    border-color: var(--border-color, #374151);
+    box-shadow: var(--card-shadow, 0 4px 24px rgba(0,0,0,0.22));
+  }
+  .modal-content h2 {
+    color: var(--text-primary, #f9fafb);
+  }
+  .modal-content p {
+    color: var(--text-secondary, #d1d5db);
+  }
+  .cancel-btn {
+    background: var(--border-color, #374151);
+    color: var(--text-primary, #f9fafb);
+  }
+  .cancel-btn:hover {
+    background: var(--text-muted, #4b5563);
+    color: var(--text-primary, #f9fafb);
+  }
+  .delete-btn {
+    background: var(--danger-color, #ef4444);
+    color: #fff;
+  }
+  .delete-btn:hover:not(:disabled) {
+    background: #dc2626;
+    color: #fff;
+  }
+}
+
+.action-btn.edit-btn, .action-btn.delete-btn {
+  background: none;
+  color: var(--text-secondary, #6b7280);
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  min-width: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: color 0.2s, background 0.2s;
+}
+.action-btn.edit-btn:hover:not(:disabled) {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.10);
+}
+.action-btn.delete-btn:hover:not(:disabled) {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.10);
+}
+.action-btn.edit-btn:disabled,
+.action-btn.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.transactions-table th:nth-child(1),
+.transactions-table td.transaction-type-cell {
+  text-align: left;
+}
+.transactions-table th:nth-child(2),
+.transactions-table td.transaction-title-cell {
+  text-align: left;
+}
+.transactions-table th:nth-child(3),
+.transactions-table td.transaction-description-cell {
+  text-align: left;
+}
+.transactions-table th:nth-child(4),
+.transactions-table td.transaction-amount-cell {
+  text-align: right;
+}
+.transactions-table th:nth-child(5),
+.transactions-table td.transaction-status-cell {
+  text-align: center;
+}
+.transactions-table th:nth-child(6),
+.transactions-table td.transaction-due-date-cell {
+  text-align: center;
+}
+.transactions-table th:nth-child(7),
+.transactions-table td.transaction-actions-cell {
+  text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --card-bg: #23272f;
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.22);
+    --border-color: #4b5563;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --danger-color: #ef4444;
+  }
+}

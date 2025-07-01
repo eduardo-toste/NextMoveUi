@@ -41,6 +41,7 @@ export interface TransactionResponseDTO {
   status: 'completed' | 'pending' | 'scheduled';
   description: string;
   createdAt: string;
+  dueDate?: string;
   // Adicione outros campos conforme necessário
 }
 
@@ -236,10 +237,30 @@ class ApiService {
   }
 
   // Excluir transação
-  async deleteTransaction(transactionId: string): Promise<{ success: boolean; message: string }> {
-    return this.request<{ success: boolean; message: string }>(`/transaction-service/transaction/${transactionId}`, {
+  async deleteTransaction(transactionId: string): Promise<void> {
+    const url = `${this.baseURL}/transaction-service/transaction/${transactionId}`;
+    const token = localStorage.getItem('authToken');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const response = await fetch(url, {
       method: 'DELETE',
+      headers,
+      credentials: 'include',
     });
+    if (!response.ok) {
+      let errorMsg = 'Erro ao excluir transação';
+      try {
+        const data = await response.json();
+        errorMsg = data.message || errorMsg;
+      } catch {}
+      throw new Error(errorMsg);
+    }
+    // Não tente fazer response.json() se for 204 ou sem corpo!
+    return;
   }
 }
 
