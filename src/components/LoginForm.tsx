@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginFormProps {
@@ -20,6 +20,10 @@ const LoginForm: React.FC<LoginFormProps> = ({
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  useEffect(() => {
+    localStorage.removeItem('token');
+  }, []);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
