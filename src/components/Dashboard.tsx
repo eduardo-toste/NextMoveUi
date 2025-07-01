@@ -315,24 +315,34 @@ const Dashboard: React.FC = () => {
               <h3>Histórico de Transações</h3>
             </div>
             <div className="activities-list" style={{ maxHeight: 340, overflowY: 'auto' }}>
-              {recentActivities.slice(0, 10).map((activity, index) => (
-                <button
-                  key={index}
-                  className="activity-item activity-interactive"
-                  onClick={() => handleTransactionClick(activity.id)}
-                  title="Ver detalhes da transação"
-                >
-                  <span className="activity-icon">{activity.icon}</span>
-                  <div className="activity-content">
-                    <div className="activity-message">{activity.message}</div>
-                    <div className="activity-time">{activity.time}</div>
-                  </div>
-                  <div 
-                    className="activity-status"
-                    style={{ backgroundColor: getStatusColor(activity.status) }}
-                  />
-                </button>
-              ))}
+              {recentActivities.length === 0 ? (
+                <div style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 180, color: '#6b7280', fontWeight: 500, fontSize: '1.08rem', gap: 10
+                }}>
+                  <span style={{ fontSize: 38, opacity: 0.7 }}>📋</span>
+                  <span>Nenhuma transação recente encontrada</span>
+                  <span style={{ fontSize: 14, color: '#a1a1aa', marginTop: 2 }}>As transações mais recentes aparecerão aqui.</span>
+                </div>
+              ) : (
+                recentActivities.slice(0, 10).map((activity, index) => (
+                  <button
+                    key={index}
+                    className="activity-item activity-interactive"
+                    onClick={() => handleTransactionClick(activity.id)}
+                    title="Ver detalhes da transação"
+                  >
+                    <span className="activity-icon">{activity.icon}</span>
+                    <div className="activity-content">
+                      <div className="activity-message">{activity.message}</div>
+                      <div className="activity-time">{activity.time}</div>
+                    </div>
+                    <div 
+                      className="activity-status"
+                      style={{ backgroundColor: getStatusColor(activity.status) }}
+                    />
+                  </button>
+                ))
+              )}
             </div>
           </div>
 
