@@ -40,12 +40,13 @@ const Dashboard: React.FC = () => {
         const res = await apiService.getAllTransactions();
         const txs = res.content || [];
         setTransactions(txs);
+        console.log('Transações carregadas:', txs.map(t => ({ id: t.id, dueDate: t.dueDate, status: t.status, type: t.type, amount: t.amount })));
         // Cálculos
         const now = new Date();
-        const thisMonth = now.getMonth();
+        const thisMonth = now.getMonth() + 1;
         const thisYear = now.getFullYear();
-        const prevMonth = thisMonth === 0 ? 11 : thisMonth - 1;
-        const prevMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+        const prevMonth = thisMonth === 1 ? 12 : thisMonth - 1;
+        const prevMonthYear = thisMonth === 1 ? thisYear - 1 : thisYear;
 
         // Filtros
         const completed = txs.filter(t => t.status === 'completed');
@@ -70,26 +71,20 @@ const Dashboard: React.FC = () => {
         // Função utilitária para pegar mês/ano de uma transação (usando apenas dueDate)
         const getMonthYear = (t: any) => {
           if (!t.dueDate) return { month: -1, year: -1 };
-          const d = new Date(t.dueDate);
-          return { month: d.getUTCMonth(), year: d.getUTCFullYear() };
+          const [year, month] = t.dueDate.split('-');
+          return { month: Number(month), year: Number(year) };
         };
 
-        // Valor do mês atual (apenas receitas)
+        // Valor total de receitas (todas)
         const monthIncome = txs.filter(t =>
-          t.status === 'completed' &&
-          t.type === 'INCOME' &&
-          t.dueDate &&
-          getMonthYear(t).month === thisMonth &&
-          getMonthYear(t).year === thisYear
+          t.status && t.status.toLowerCase() === 'completed' &&
+          t.type === 'INCOME'
         ).reduce((sum, t) => sum + t.amount, 0);
 
-        // Valor do mês atual (apenas despesas)
+        // Valor total de despesas (todas)
         const monthExpense = txs.filter(t =>
-          t.status === 'completed' &&
-          t.type === 'EXPENSE' &&
-          t.dueDate &&
-          getMonthYear(t).month === thisMonth &&
-          getMonthYear(t).year === thisYear
+          t.status && t.status.toLowerCase() === 'completed' &&
+          t.type === 'EXPENSE'
         ).reduce((sum, t) => sum + t.amount, 0);
         // Lucro líquido do mês
         const netProfit = monthIncome - monthExpense;
