@@ -3,6 +3,7 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import Dashboard from './components/Dashboard';
 import CreateTransaction from './components/CreateTransaction';
+import TransactionList from './components/TransactionList';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import TransactionView from './components/TransactionView';
 
@@ -96,6 +97,14 @@ function App() {
     return (
       <AuthProvider>
         <CreateTransaction />
+      </AuthProvider>
+    );
+  }
+
+  if (pathname === '/transacoes') {
+    return (
+      <AuthProvider>
+        <TransactionList />
       </AuthProvider>
     );
   }

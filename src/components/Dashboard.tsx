@@ -193,9 +193,7 @@ const Dashboard: React.FC = () => {
     setSelectedTransaction(null);
   };
 
-  const handleViewAll = () => {
-    window.location.href = '/transacoes';
-  };
+
 
   if (loading) return <div style={{ padding: 32, textAlign: 'center' }}>Carregando...</div>;
   if (error) return <div style={{ padding: 32, color: 'red', textAlign: 'center' }}>{error}</div>;
@@ -312,10 +310,6 @@ const Dashboard: React.FC = () => {
           <div className="status-item">
             <div className="status-dot" />
             <span>Sistema Online</span>
-          </div>
-          <div className="status-item">
-            <div className="status-dot" />
-            <span>API Conectada</span>
           </div>
           <div className="status-item">
             <div className="status-dot" />

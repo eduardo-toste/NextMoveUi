@@ -234,6 +234,13 @@ class ApiService {
       body: JSON.stringify(transactionData),
     });
   }
+
+  // Excluir transação
+  async deleteTransaction(transactionId: string): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/transaction-service/transaction/${transactionId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 // Instância do serviço de API
