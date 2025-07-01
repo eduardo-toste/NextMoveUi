@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/api';
 import type { TransactionResponseDTO } from '../services/api';
 import TransactionView from './TransactionView';
+import EditTransactionModal from './EditTransactionModal';
 
 const TransactionList: React.FC = () => {
   const { user } = useAuth();
@@ -16,6 +17,8 @@ const TransactionList: React.FC = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<TransactionResponseDTO | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [transactionToEdit, setTransactionToEdit] = useState<TransactionResponseDTO | null>(null);
   
   // Filtros
   const [filters, setFilters] = useState({
@@ -101,9 +104,13 @@ const TransactionList: React.FC = () => {
   };
 
   const handleEdit = (transaction: TransactionResponseDTO) => {
-    // TODO: Implementar edição
-    console.log('Editar transação:', transaction.id);
-    alert('Funcionalidade de edição será implementada em breve!');
+    setTransactionToEdit(transaction);
+    setEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setTransactionToEdit(null);
   };
 
   const handleDeleteClick = (transaction: TransactionResponseDTO) => {
@@ -202,7 +209,18 @@ const TransactionList: React.FC = () => {
   return (
     <div className="transaction-list-container">
       {modalOpen && selectedTransaction && (
-        <TransactionView transaction={selectedTransaction} onClose={handleCloseModal} />
+        <TransactionView transaction={selectedTransaction} onClose={handleCloseModal} onEdit={handleEdit} />
+      )}
+      {editModalOpen && transactionToEdit && (
+        <EditTransactionModal
+          transaction={transactionToEdit}
+          onClose={handleCloseEditModal}
+          onSave={() => {
+            setEditModalOpen(false);
+            setTransactionToEdit(null);
+            fetchTransactions();
+          }}
+        />
       )}
       {deleteModalOpen && transactionToDelete && (
         <div className="modal-overlay">

@@ -23,8 +23,9 @@ const typeLabels: Record<string, string> = {
 };
 
 interface TransactionViewProps {
-  transaction: Record<string, any>;
+  transaction: TransactionResponseDTO;
   onClose: () => void;
+  onEdit?: (transaction: TransactionResponseDTO) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -33,8 +34,8 @@ const statusColors: Record<string, string> = {
   scheduled: '#3b82f6',
 };
 
-const TransactionView: React.FC<TransactionViewProps> = ({ transaction, onClose }) => {
-  const mainTitle = transaction.title || transaction.description || 'Detalhes da Transação';
+const TransactionView: React.FC<TransactionViewProps> = ({ transaction, onClose, onEdit }) => {
+  const mainTitle = (transaction as any).title || transaction.description || 'Detalhes da Transação';
   const fields = Object.entries(transaction).filter(([key]) => !/id/i.test(key));
 
   // Separar campos principais
@@ -50,9 +51,24 @@ const TransactionView: React.FC<TransactionViewProps> = ({ transaction, onClose 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal-close-btn" onClick={onClose} aria-label="Fechar detalhes da transação">
-          &times;
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button className="modal-close-btn" onClick={onClose} aria-label="Fechar detalhes da transação">
+            &times;
+          </button>
+          {onEdit && (
+            <button
+              className="modal-edit-btn"
+              onClick={() => onEdit(transaction)}
+              aria-label="Editar transação"
+              style={{ marginLeft: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#2563eb', fontSize: 20 }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+          )}
+        </div>
         {/* Título grande */}
         <h2 className="dashboard-title" style={{ marginBottom: 8, fontSize: '1.6rem', textAlign: 'center', letterSpacing: 0.2, fontWeight: 700 }}>{mainTitle}</h2>
         {/* Valor em destaque */}

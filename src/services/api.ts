@@ -262,6 +262,14 @@ class ApiService {
     // Não tente fazer response.json() se for 204 ou sem corpo!
     return;
   }
+
+  // Atualizar transação existente
+  async updateTransaction(transactionId: string, transactionData: Partial<TransactionResponseDTO>): Promise<TransactionResponseDTO> {
+    return this.request<TransactionResponseDTO>(`/transaction-service/transaction/${transactionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(transactionData),
+    });
+  }
 }
 
 // Instância do serviço de API
