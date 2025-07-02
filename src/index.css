@@ -1069,6 +1069,10 @@ body {
   .status-item {
     --text-secondary: #d1d5db;
   }
+  .empty-state {
+    background: rgba(31, 41, 55, 0.95) !important;
+    border-color: #4b5563 !important;
+  }
 }
 
 /* Media Queries para responsividade */
