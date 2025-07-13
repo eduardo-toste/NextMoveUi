@@ -1,39 +1,40 @@
 # 🚀 NextMove Frontend
 
-Uma plataforma moderna de gestão financeira, desenvolvida em React + TypeScript, com autenticação segura, dashboard interativo, relatórios em PDF e design profissional.
+Plataforma moderna e robusta de gestão financeira, desenvolvida em React + TypeScript, com autenticação segura, dashboard interativo, relatórios em PDF e design profissional. Foco total em experiência do usuário, performance, segurança e integração com arquitetura de microservices.
 
 ---
 
 ## ✨ Visão Geral
 
-O **NextMove** é um dashboard financeiro completo para controle de receitas e despesas, com foco em experiência do usuário, performance e integração com arquitetura de microservices.
+O **NextMove** é um sistema completo para controle de receitas e despesas, pensado para máxima produtividade e confiabilidade:
 
-- **Autenticação JWT** (login, registro, logout seguro)
-- **Dashboard com métricas, histórico e resumo financeiro**
-- **Gestão de transações**: criar, editar, excluir, filtrar e alterar status
-- **Relatório mensal em PDF** (download com um clique)
-- **Design responsivo, tema escuro/claro e animações modernas**
-
----
-
-## 🛠️ Tecnologias
-
-- React 19 + TypeScript
-- Vite (build ultra-rápido)
-- Context API para autenticação
-- jsPDF para geração de relatórios
-- CSS customizado e responsivo
+- **Autenticação JWT** (login, registro, logout seguro e resiliente)
+- **Dashboard dinâmico** com métricas, histórico e resumo financeiro
+- **Gestão de transações**: criar, editar, excluir, filtrar, alterar status
+- **Relatório mensal em PDF** (download profissional com um clique)
+- **Design responsivo, tema escuro/claro, acessibilidade e micro-animações**
 
 ---
 
-## 🚀 Como Executar
+## 🛠️ Tecnologias & Arquitetura
+
+- **React 19** + **TypeScript**
+- **Vite** (build ultra-rápido)
+- **Context API** para autenticação global
+- **jsPDF** para geração de relatórios
+- **CSS customizado** e responsivo (Glassmorphism, gradientes)
+- **Integração com microservices** (API Gateway)
+
+---
+
+## 📦 Instalação & Execução
 
 ### Pré-requisitos
 - Node.js 18+
 - npm ou yarn
-- Backend NextMove rodando (API Gateway em `localhost:8082` por padrão)
+- Backend NextMove rodando (API Gateway padrão: `http://localhost:8082`)
 
-### Instalação
+### Passos
 
 ```bash
 git clone [url-do-repositorio]
@@ -50,7 +51,6 @@ VITE_API_URL=http://localhost:8082
 VITE_APP_NAME=NextMove
 VITE_APP_VERSION=1.0.0
 ```
-
 > Consulte `env.example` para mais detalhes.
 
 ### Rodando o Projeto
@@ -62,22 +62,29 @@ Acesse: [http://localhost:5173](http://localhost:5173)
 
 ---
 
-## 🔐 Autenticação
+## 🔐 Autenticação & Segurança
 
-- **Login**: email e senha (mín. 6 caracteres)
+- **Login**: email e senha (mín. 6 caracteres, validação em tempo real)
 - **Registro**: nome, email único, senha e confirmação
-- **Logout seguro**: token sempre removido, mesmo com falha de rede
-- **Validação em tempo real** e feedback visual
+- **Logout seguro**: token sempre removido, mesmo com falha de rede (timeout, fallback e limpeza local garantida)
 - **Proteção contra XSS e dados inválidos**
+- **Timeouts e tratamento de erros de API**
+- **Tokens JWT armazenados com segurança**
+
+#### 🔄 Diferencial: Logout Resiliente
+- Timeout automático nas requisições
+- Limpeza local garantida mesmo com falha de rede
+- Fallback manual para garantir remoção do token
+- Sem necessidade de intervenção do usuário
 
 ---
 
 ## 💸 Gestão de Transações
 
-- **Criar, editar e excluir** transações
+- **Criar, editar, excluir** transações
 - **Campos**: título, descrição, valor, data de vencimento, tipo (receita/despesa), status
 - **Filtros avançados**: por tipo, status e busca textual
-- **Alteração de status**: conclua, pendencie ou cancele transações com dropdown customizado
+- **Alteração de status**: conclua, pendencie ou cancele transações via dropdown
 - **Visualização detalhada**: modal com informações completas e ações rápidas
 - **Ordenação decrescente por data de vencimento**
 
@@ -86,18 +93,18 @@ Acesse: [http://localhost:5173](http://localhost:5173)
 ## 📊 Dashboard & Relatórios
 
 - **Resumo financeiro**: receitas, despesas e saldo do mês
-- **Métricas rápidas**: totais, pendências e tendências
+- **Métricas rápidas**: totais, pendências, tendências
 - **Histórico de transações**: últimas movimentações com navegação rápida
-- **Relatório mensal em PDF**: gere e baixe um relatório profissional com todas as transações do mês, incluindo totais e balança
+- **Relatório mensal em PDF**: gere e baixe um relatório profissional com todas as transações do mês, incluindo totais e balanço
 
 ---
 
-## 🎨 Experiência Visual
+## 🎨 Experiência Visual & Acessibilidade
 
-- **Design moderno**: glassmorphism, gradientes e micro-animações
+- **Design moderno**: glassmorphism, gradientes, micro-animações
 - **Responsivo**: perfeito em desktop, tablet e mobile
 - **Tema escuro/claro**: detecção automática e transições suaves
-- **Acessibilidade**: contraste, navegação por teclado e leitores de tela
+- **Acessibilidade**: contraste, navegação por teclado, leitores de tela
 
 ---
 
@@ -115,7 +122,7 @@ src/
 
 ---
 
-## 📦 Scripts
+## 📦 Scripts Disponíveis
 
 - `npm run dev` — Inicia o servidor de desenvolvimento
 - `npm run build` — Gera build de produção
@@ -124,7 +131,7 @@ src/
 
 ---
 
-## 📄 Exemplo de Uso
+## 📄 Exemplos de Uso
 
 ### 1. Login/Registro
 - Acesse `/` e faça login ou registre-se
@@ -155,7 +162,7 @@ src/
 
 ---
 
-## 🖼️ Logo & Identidade Visual
+## 🖼️ Identidade Visual
 
 - Logo SVG incluso em `/public/Logo NextMove.svg`
 - Paleta de cores: azul, verde, cinza e gradientes
@@ -166,8 +173,20 @@ src/
 
 Pull requests são bem-vindos! Siga o padrão de código, escreva commits claros e mantenha a experiência do usuário como prioridade.
 
+1. Fork este repositório
+2. Crie sua branch: `git checkout -b feature/nome-da-feature`
+3. Commit suas alterações: `git commit -m 'feat: minha feature'`
+4. Push na branch: `git push origin feature/nome-da-feature`
+5. Abra um Pull Request
+
 ---
 
 ## 📄 Licença
 
 Este projeto é open-source sob a licença MIT.
+
+---
+
+## 📬 Contato
+
+Dúvidas, sugestões ou parcerias? Entre em contato pelo [LinkedIn](https://www.linkedin.com/in/eduardo-toste/) ou abra uma issue.
